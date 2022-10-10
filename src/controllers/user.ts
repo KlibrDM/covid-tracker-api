@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, location_code } = req.body;
     const userExists = await User.findOne({ email });
     if(userExists){
       return res.status(409).json({ message: "User already exists" });
@@ -17,6 +17,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
       email,
       password: await bcrypt.hash(password, 10),
       role: role ? role : 'user',
+      location_code: location_code
     });
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_KEY!, { expiresIn: 86400 });
     return res.status(200).json({ token });
@@ -40,7 +41,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_KEY!, { expiresIn: 86400 });
-    return res.status(200).json({ token });
+    
+    user.token = token;
+    await user.save();
+
+    return res.status(200).json(user);
   }
   catch(err){
     return res.status(500).json(err);

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import csv from 'csvtojson';
 import moment from 'moment';
-import Data from '../models/data';
+import Data, { IData } from '../models/data';
 import { accessAllowed } from '../utils/checkRole';
 
 const getData = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,7 +34,7 @@ const getData = async (req: Request, res: Response, next: NextFunction) => {
       }, {});
     }
 
-    const data = await Data.find(
+    const data: IData[] = await Data.find(
       queryParams,
       queryProjection ? {
         _id: 0,

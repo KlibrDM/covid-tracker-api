@@ -13,6 +13,7 @@ export interface IUser{
   email: string;
   password: string;
   role: RoleType;
+  location_code: string;
   token?: string;
 }
 
@@ -38,6 +39,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: RoleTypes,
+  },
+  location_code: {
+    type: String,
+    required: true,
   },
   token: {
     type: String,
