@@ -14,6 +14,7 @@ router.get('/load-latest-locations', auth, LocationController.loadLatestLocation
 
 //Data
 router.get('/get-data', DataController.getData);
+router.get('/get-latest-data', DataController.getLatestData);
 router.get('/load-latest-data', auth, DataController.loadLatestData);
 router.get('/load-all-data', auth, DataController.loadAllData);
 

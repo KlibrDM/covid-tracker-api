@@ -54,6 +54,66 @@ const getData = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getLatestData = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    let projection: string[] = [];
+    let queryProjection: object | undefined = undefined;
+    if(req.query.projection){
+      if(typeof req.query.projection === 'string'){
+        projection.push(req.query.projection);
+      }
+      else{
+        projection = req.query.projection as string[];
+      }
+
+      queryProjection = projection.reduce((acc: any, cur: string) => {
+        acc[cur] = 1;
+        return acc;
+      }, {});
+    }
+
+    const data: IData[] = [];
+
+    //Try to get locations from query params
+    let locations: string[] = req.query.location_code
+                              ? (typeof req.query.location_code === 'string'
+                              ? [req.query.location_code]
+                              : req.query.location_code as string[])
+                              : [];
+
+    //If no location is given, get all locations
+    if(locations.length === 0){
+      locations = await Data.distinct('location_code');
+    }
+
+    //Get latest data for each location
+    for(let i = 0; i < locations.length; i++){
+      const latestData: IData | null = await Data.findOne(
+        { location_code: locations[i] },
+        queryProjection ? {
+          _id: 0,
+          date: 1,
+          location_code: 1,
+          ...queryProjection
+        } : null,
+        {
+          sort: {
+            date: -1
+          }
+        }
+      );
+      if(latestData){
+        data.push(latestData);
+      }
+    }
+
+    return res.status(200).json(data);
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
 const loadLatestData = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(!(await accessAllowed(req.headers["authData"], 'admin'))){
@@ -160,4 +220,4 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default { getData, loadLatestData, loadAllData };
+export default { getData, getLatestData, loadLatestData, loadAllData };
