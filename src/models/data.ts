@@ -116,5 +116,5 @@ DataSchema.index({
   date: 1,
 });
 
-const Data = mongoose.model<IData>("Data", DataSchema);
-export default Data;
+export const Data = mongoose.model<IData>("Data", DataSchema);
+export const LatestData = mongoose.model<IData>("LatestData", DataSchema);

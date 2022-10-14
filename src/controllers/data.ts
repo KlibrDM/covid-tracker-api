@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import csv from 'csvtojson';
 import moment from 'moment';
-import Data, { IData } from '../models/data';
+import { Data, IData, LatestData } from '../models/data';
 import { accessAllowed } from '../utils/checkRole';
 
 const getData = async (req: Request, res: Response, next: NextFunction) => {
@@ -72,8 +72,6 @@ const getLatestData = async (req: Request, res: Response, next: NextFunction) =>
       }, {});
     }
 
-    const data: IData[] = [];
-
     //Try to get locations from query params
     let locations: string[] = req.query.location_code
                               ? (typeof req.query.location_code === 'string'
@@ -81,31 +79,16 @@ const getLatestData = async (req: Request, res: Response, next: NextFunction) =>
                               : req.query.location_code as string[])
                               : [];
 
-    //If no location is given, get all locations
-    if(locations.length === 0){
-      locations = await Data.distinct('location_code');
-    }
-
     //Get latest data for each location
-    for(let i = 0; i < locations.length; i++){
-      const latestData: IData | null = await Data.findOne(
-        { location_code: locations[i] },
-        queryProjection ? {
-          _id: 0,
-          date: 1,
-          location_code: 1,
-          ...queryProjection
-        } : null,
-        {
-          sort: {
-            date: -1
-          }
-        }
-      );
-      if(latestData){
-        data.push(latestData);
-      }
-    }
+    const data: IData[] | null = await LatestData.find(
+      locations.length !== 0 ? { location_code: { $in: locations } } : {},
+      queryProjection ? {
+        _id: 0,
+        date: 1,
+        location_code: 1,
+        ...queryProjection
+      } : null,
+    );
 
     return res.status(200).json(data);
   }
@@ -151,9 +134,17 @@ const loadLatestData = async (req: Request, res: Response, next: NextFunction) =
 
     //Save to DB
     jsonObj.forEach(async e => {
+      //Update data in all data
       const updatedData = await Data.updateOne({ location_code: e.location_code, date: e.date }, e, { upsert: true });
+
+      //Update data in latest data (update date too)
+      const updatedLatestData = await LatestData.updateOne({ location_code: e.location_code }, e, { upsert: true });
+
       if(!updatedData){
         await Data.create(e);
+      }
+      if(!updatedLatestData){
+        await LatestData.create(e);
       }
     });
 
@@ -206,6 +197,11 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
         await Data.create(e);
       }
     });
+
+    const latestData = await LatestData.findOne({ location_code: jsonObj[jsonObj.length-1].location_code });
+    if(!latestData){
+      await LatestData.create(jsonObj[jsonObj.length-1]);
+    }
 
     //Remodel response
     jsonObj = jsonObj.map(e => ({
