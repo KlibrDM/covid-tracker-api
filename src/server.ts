@@ -10,6 +10,7 @@ const app: Express = express();
 //Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI!, {
   autoIndex: true,
+  ignoreUndefined: true,
 }, () => {
   console.log('Connected to MongoDB');
 });

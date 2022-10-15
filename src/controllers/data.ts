@@ -111,41 +111,33 @@ const loadLatestData = async (req: Request, res: Response, next: NextFunction) =
     jsonObj = jsonObj.map(e => ({
       location_code: e.iso_code,
       date: moment(e.last_updated_date).format('YYYY-MM-DD'),
-      total_cases: e.total_cases,
-      new_cases: e.new_cases,
-      total_deaths: e.total_deaths,
-      new_deaths: e.new_deaths,
-      reproduction_rate: e.reproduction_rate,
-      icu_patients: e.icu_patients,
-      hosp_patients: e.hosp_patients,
-      weekly_icu_admissions: e.weekly_icu_admissions,
-      weekly_hosp_admissions: e.weekly_hosp_admissions,
-      total_tests: e.total_tests,
-      new_tests: e.new_tests,
-      positive_rate: e.positive_rate,
-      test_units: e.test_units,
-      total_vaccinations: e.total_vaccinations,
-      people_vaccinated: e.people_vaccinated,
-      people_fully_vaccinated: e.people_fully_vaccinated,
-      total_boosters: e.total_boosters,
-      new_vaccinations: e.new_vaccinations,
-      stringency_index: e.stringency_index
+      total_cases: +e.total_cases || undefined,
+      new_cases: +e.new_cases || undefined,
+      total_deaths: +e.total_deaths || undefined,
+      new_deaths: +e.new_deaths || undefined,
+      reproduction_rate: +e.reproduction_rate || undefined,
+      icu_patients: +e.icu_patients || undefined,
+      hosp_patients: +e.hosp_patients || undefined,
+      weekly_icu_admissions: +e.weekly_icu_admissions || undefined,
+      weekly_hosp_admissions: +e.weekly_hosp_admissions || undefined,
+      total_tests: +e.total_tests || undefined,
+      new_tests: +e.new_tests || undefined,
+      positive_rate: +e.positive_rate || undefined,
+      test_units: +e.test_units || undefined,
+      total_vaccinations: +e.total_vaccinations || undefined,
+      people_vaccinated: +e.people_vaccinated || undefined,
+      people_fully_vaccinated: +e.people_fully_vaccinated || undefined,
+      total_boosters: +e.total_boosters || undefined,
+      new_vaccinations: +e.new_vaccinations || undefined,
+      stringency_index: +e.stringency_index || undefined
     }));
 
     //Save to DB
     jsonObj.forEach(async e => {
       //Update data in all data
-      const updatedData = await Data.updateOne({ location_code: e.location_code, date: e.date }, e, { upsert: true });
-
+      await Data.updateOne({ location_code: e.location_code, date: e.date }, e, { upsert: true });
       //Update data in latest data (update date too)
-      const updatedLatestData = await LatestData.updateOne({ location_code: e.location_code }, e, { upsert: true });
-
-      if(!updatedData){
-        await Data.create(e);
-      }
-      if(!updatedLatestData){
-        await LatestData.create(e);
-      }
+      await LatestData.updateOne({ location_code: e.location_code }, e, { upsert: true });
     });
 
     return res.status(200).json(jsonObj);
@@ -169,39 +161,33 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
     jsonObj = jsonObj.map(e => ({
       location_code: e.iso_code,
       date: moment(e.date).format('YYYY-MM-DD'),
-      total_cases: e.total_cases,
-      new_cases: e.new_cases,
-      total_deaths: e.total_deaths,
-      new_deaths: e.new_deaths,
-      reproduction_rate: e.reproduction_rate,
-      icu_patients: e.icu_patients,
-      hosp_patients: e.hosp_patients,
-      weekly_icu_admissions: e.weekly_icu_admissions,
-      weekly_hosp_admissions: e.weekly_hosp_admissions,
-      total_tests: e.total_tests,
-      new_tests: e.new_tests,
-      positive_rate: e.positive_rate,
-      test_units: e.test_units,
-      total_vaccinations: e.total_vaccinations,
-      people_vaccinated: e.people_vaccinated,
-      people_fully_vaccinated: e.people_fully_vaccinated,
-      total_boosters: e.total_boosters,
-      new_vaccinations: e.new_vaccinations,
-      stringency_index: e.stringency_index
+      total_cases: +e.total_cases || undefined,
+      new_cases: +e.new_cases || undefined,
+      total_deaths: +e.total_deaths || undefined,
+      new_deaths: +e.new_deaths || undefined,
+      reproduction_rate: +e.reproduction_rate || undefined,
+      icu_patients: +e.icu_patients || undefined,
+      hosp_patients: +e.hosp_patients || undefined,
+      weekly_icu_admissions: +e.weekly_icu_admissions || undefined,
+      weekly_hosp_admissions: +e.weekly_hosp_admissions || undefined,
+      total_tests: +e.total_tests || undefined,
+      new_tests: +e.new_tests || undefined,
+      positive_rate: +e.positive_rate || undefined,
+      test_units: +e.test_units || undefined,
+      total_vaccinations: +e.total_vaccinations || undefined,
+      people_vaccinated: +e.people_vaccinated || undefined,
+      people_fully_vaccinated: +e.people_fully_vaccinated || undefined,
+      total_boosters: +e.total_boosters || undefined,
+      new_vaccinations: +e.new_vaccinations || undefined,
+      stringency_index: +e.stringency_index || undefined
     }));
 
-    //Save to DB
-    jsonObj.forEach(async e => {
-      const updatedData = await Data.findOne({ location_code: e.location_code, date: e.date });
-      if(!updatedData){
-        await Data.create(e);
-      }
+    //Save to DB with bulk operation
+    const bulkOp = Data.collection.initializeUnorderedBulkOp();
+    jsonObj.forEach(e => {
+      bulkOp.find({ location_code: e.location_code, date: e.date }).upsert().replaceOne(e);
     });
-
-    const latestData = await LatestData.findOne({ location_code: jsonObj[jsonObj.length-1].location_code });
-    if(!latestData){
-      await LatestData.create(jsonObj[jsonObj.length-1]);
-    }
+    await bulkOp.execute();
 
     //Remodel response
     jsonObj = jsonObj.map(e => ({
