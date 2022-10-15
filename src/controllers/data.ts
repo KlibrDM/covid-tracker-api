@@ -110,7 +110,7 @@ const loadLatestData = async (req: Request, res: Response, next: NextFunction) =
     //Remodel data
     jsonObj = jsonObj.map(e => ({
       location_code: e.iso_code,
-      date: moment(e.last_updated_date).format('YYYY-MM-DD'),
+      date: new Date(e.last_updated_date),
       total_cases: +e.total_cases || undefined,
       new_cases: +e.new_cases || undefined,
       total_deaths: +e.total_deaths || undefined,
@@ -160,7 +160,7 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
     //Remodel data
     jsonObj = jsonObj.map(e => ({
       location_code: e.iso_code,
-      date: moment(e.date).format('YYYY-MM-DD'),
+      date: new Date(e.date),
       total_cases: +e.total_cases || undefined,
       new_cases: +e.new_cases || undefined,
       total_deaths: +e.total_deaths || undefined,
