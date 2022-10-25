@@ -129,7 +129,9 @@ const loadLatestData = async (req: Request, res: Response, next: NextFunction) =
       people_fully_vaccinated: +e.people_fully_vaccinated || undefined,
       total_boosters: +e.total_boosters || undefined,
       new_vaccinations: +e.new_vaccinations || undefined,
-      stringency_index: +e.stringency_index || undefined
+      stringency_index: +e.stringency_index || undefined,
+      excess_mortality: +e.excess_mortality || undefined,
+      excess_mortality_cumulative: +e.excess_mortality_cumulative || undefined
     }));
 
     //Save to DB
@@ -179,7 +181,9 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
       people_fully_vaccinated: +e.people_fully_vaccinated || undefined,
       total_boosters: +e.total_boosters || undefined,
       new_vaccinations: +e.new_vaccinations || undefined,
-      stringency_index: +e.stringency_index || undefined
+      stringency_index: +e.stringency_index || undefined,
+      excess_mortality: +e.excess_mortality || undefined,
+      excess_mortality_cumulative: +e.excess_mortality_cumulative || undefined
     }));
 
     //Save to DB with bulk operation

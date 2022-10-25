@@ -22,6 +22,8 @@ export interface IData {
   total_boosters?: number;
   new_vaccinations?: number;
   stringency_index?: number;
+  excess_mortality?: number;
+  excess_mortality_cumulative?: number;
 }
 
 const DataSchema = new mongoose.Schema({
@@ -106,6 +108,14 @@ const DataSchema = new mongoose.Schema({
     required: false,
   },
   stringency_index: {
+    type: Number,
+    required: false,
+  },
+  excess_mortality: {
+    type: Number,
+    required: false,
+  },
+  excess_mortality_cumulative: {
     type: Number,
     required: false,
   },
