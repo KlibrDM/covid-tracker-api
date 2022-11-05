@@ -24,6 +24,8 @@ router.get('/charts', auth, ChartController.getCharts);
 router.get('/charts/get-public', ChartController.getPublicCharts);
 router.get('/charts/get-all', auth, ChartController.getAllCharts);
 router.get('/charts/:id', auth, ChartController.getChart);
+router.delete('/charts/:id', auth, ChartController.deleteChart);
+router.put('/charts/:id', auth, ChartController.updateChart);
 router.post('/charts', auth, ChartController.addChart);
 
 //User

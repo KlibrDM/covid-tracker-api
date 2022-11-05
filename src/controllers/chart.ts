@@ -56,6 +56,48 @@ const getChart = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const deleteChart = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    if(req.headers["authData"] && (req.headers["authData"] as any).id){
+      const result = await Chart.findById(req.params.id);
+      if(result && result.ownerId === (req.headers["authData"] as any).id){
+        await Chart.deleteOne({ _id: req.params.id });
+        return res.status(200).json({ message: "Chart deleted" });
+      }
+      else{
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const updateChart = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    if(req.headers["authData"] && (req.headers["authData"] as any).id){
+      const result = await Chart.findById(req.params.id);
+      if(result && result.ownerId === (req.headers["authData"] as any).id){
+        const response = await Chart.updateOne({ _id: req.params.id }, req.body);
+        return res.status(200).json(response);
+      }
+      else{
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
 const addChart = async (req: Request, res: Response, next: NextFunction) => {
   try{
     const chart = new Chart(req.body as IChart);
@@ -67,4 +109,4 @@ const addChart = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default { getAllCharts, getPublicCharts, getCharts, getChart, addChart };
+export default { getAllCharts, getPublicCharts, getCharts, getChart, deleteChart, updateChart, addChart };

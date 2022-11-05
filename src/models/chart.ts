@@ -21,7 +21,6 @@ export interface IIndicator {
 }
 
 export interface IChartValue {
-  id?: string;
   indicator: IIndicator;
   location_code: string;
   chart_type: "area" | "line" | "bar";
@@ -50,6 +49,7 @@ const ChartSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    maxLength: 250,
   },
   start_date: {
     type: Date,
@@ -61,10 +61,6 @@ const ChartSchema = new mongoose.Schema({
   },
   values: {
     type: [{
-      id: {
-        type: String,
-        required: false,
-      },
       indicator: {
         key: {
           type: String,
