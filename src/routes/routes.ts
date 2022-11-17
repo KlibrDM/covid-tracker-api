@@ -3,6 +3,7 @@ import LocationController from '../controllers/location';
 import DataController from '../controllers/data';
 import UserController from '../controllers/user';
 import ChartController from '../controllers/chart';
+import CustomLocationController from '../controllers/customLocation';
 import auth from "../middleware/auth";
 
 const router = express.Router();
@@ -27,6 +28,15 @@ router.get('/charts/:id', auth, ChartController.getChart);
 router.delete('/charts/:id', auth, ChartController.deleteChart);
 router.put('/charts/:id', auth, ChartController.updateChart);
 router.post('/charts', auth, ChartController.addChart);
+
+//Custom locations
+router.get('/custom-locations', auth, CustomLocationController.getCustomLocations);
+router.get('/custom-locations/get-public', CustomLocationController.getPublicCustomLocations);
+router.get('/custom-locations/get-all', auth, CustomLocationController.getAllCustomLocations);
+router.get('/custom-locations/:id', auth, CustomLocationController.getCustomLocation);
+router.delete('/custom-locations/:id', auth, CustomLocationController.deleteCustomLocation);
+router.put('/custom-locations/:id', auth, CustomLocationController.updateCustomLocation);
+router.post('/custom-locations', auth, CustomLocationController.addCustomLocation);
 
 //User
 router.post('/user/register', UserController.register);

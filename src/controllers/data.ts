@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import csv from 'csvtojson';
 import moment from 'moment';
-import { Data, IData, LatestData } from '../models/data';
+import { CustomLocationData, Data, IData, LatestData } from '../models/data';
 import { accessAllowed } from '../utils/checkRole';
 
 const getData = async (req: Request, res: Response, next: NextFunction) => {
   try{
+    const useCustomLocations = req.query.use_custom_locations === 'true';
     const queryParams = {
       location_code: req.query.location_code,
       date: req.query.start_date && req.query.end_date
@@ -34,19 +35,38 @@ const getData = async (req: Request, res: Response, next: NextFunction) => {
       }, {});
     }
 
-    const data: IData[] = await Data.find(
-      queryParams,
-      queryProjection ? {
-        _id: 0,
-        date: 1,
-        ...queryProjection
-      } : null,
-      {
-        sort: {
-          date: 1
+    let data: IData[];
+    if(!useCustomLocations){
+      data = await Data.find(
+        queryParams,
+        queryProjection ? {
+          _id: 0,
+          date: 1,
+          ...queryProjection
+        } : null,
+        {
+          sort: {
+            date: 1
+          }
         }
-      }
-    );
+      );
+    }
+    else{
+      data = await CustomLocationData.find(
+        queryParams,
+        queryProjection ? {
+          _id: 0,
+          date: 1,
+          ...queryProjection
+        } : null,
+        {
+          sort: {
+            date: 1
+          }
+        }
+      );
+    }
+
     return res.status(200).json(data);
   }
   catch(err){

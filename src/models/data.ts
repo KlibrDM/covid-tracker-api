@@ -128,3 +128,4 @@ DataSchema.index({
 
 export const Data = mongoose.model<IData>("Data", DataSchema);
 export const LatestData = mongoose.model<IData>("LatestData", DataSchema);
+export const CustomLocationData = mongoose.model<IData>("CustomLocationData", DataSchema);
