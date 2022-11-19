@@ -62,7 +62,7 @@ const deleteCustomLocation = async (req: Request, res: Response, next: NextFunct
       const result = await CustomLocation.findById(req.params.id);
       if(result && result.ownerId === (req.headers["authData"] as any).id){
         await CustomLocation.deleteOne({ _id: req.params.id });
-        return res.status(200).json({ message: "Chart deleted" });
+        return res.status(200).json({ message: "Location deleted" });
       }
       else{
         return res.status(403).json({ message: "Forbidden" });
@@ -100,8 +100,13 @@ const updateCustomLocation = async (req: Request, res: Response, next: NextFunct
 
 const addCustomLocation = async (req: Request, res: Response, next: NextFunction) => {
   try{
-    const chart = new CustomLocation(req.body as ICustomLocation);
-    const result = await CustomLocation.create(chart);
+    const location = new CustomLocation(req.body as ICustomLocation);
+    
+    if(await CustomLocation.findOne({ code: location.code })){
+      return res.status(409).json({ message: "Location code already exists" });
+    }
+
+    const result = await CustomLocation.create(location);
     return res.status(200).json(result);
   }
   catch(err){
