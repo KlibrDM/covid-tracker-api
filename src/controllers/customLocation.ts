@@ -43,7 +43,7 @@ const getCustomLocations = async (req: Request, res: Response, next: NextFunctio
 
 const getCustomLocation = async (req: Request, res: Response, next: NextFunction) => {
   try{
-    const result = await CustomLocation.findById(req.params.id);
+    const result = await CustomLocation.findOne({ code: req.params.code });
     if(result && (result.ownerId === (req.headers["authData"] as any).id || result.is_public)){
       return res.status(200).json(result);
     }
@@ -59,9 +59,9 @@ const getCustomLocation = async (req: Request, res: Response, next: NextFunction
 const deleteCustomLocation = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
-      const result = await CustomLocation.findById(req.params.id);
+      const result = await CustomLocation.findOne({ code: req.params.code });
       if(result && result.ownerId === (req.headers["authData"] as any).id){
-        await CustomLocation.deleteOne({ _id: req.params.id });
+        await CustomLocation.deleteOne({ code: req.params.code });
         return res.status(200).json({ message: "Location deleted" });
       }
       else{
@@ -80,9 +80,9 @@ const deleteCustomLocation = async (req: Request, res: Response, next: NextFunct
 const updateCustomLocation = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
-      const result = await CustomLocation.findById(req.params.id);
+      const result = await CustomLocation.findOne({ code: req.params.code });
       if(result && result.ownerId === (req.headers["authData"] as any).id){
-        const response = await CustomLocation.updateOne({ _id: req.params.id }, req.body);
+        const response = await CustomLocation.updateOne({ code: req.params.code }, req.body);
         return res.status(200).json(response);
       }
       else{
