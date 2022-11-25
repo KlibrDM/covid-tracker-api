@@ -53,14 +53,14 @@ const loadLatestLocations = async (req: Request, res: Response, next: NextFuncti
     //Remodel data
     jsonObj = jsonObj.map(e => ({
       code: e.iso_code,
-      continent: e.continent,
+      continent: e.continent || undefined,
       name: e.location,
       type: e.continent ? 'country' : 'owidcat',
-      population: e.population,
-      population_density: e.population_density,
-      median_age: e.median_age,
-      aged_65_older: e.aged_65_older,
-      hospital_beds_per_thousand: e.hospital_beds_per_thousand
+      population: e.population || undefined,
+      population_density: e.population_density || undefined,
+      median_age: e.median_age || undefined,
+      aged_65_older: e.aged_65_older || undefined,
+      hospital_beds_per_thousand: e.hospital_beds_per_thousand || undefined
     }));
 
     //Save to DB
