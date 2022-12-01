@@ -32,6 +32,7 @@ router.get('/load-all-data', auth, DataController.loadAllData);
 
 //Custom locations data
 router.post('/custom-locations/data', auth, CustomLocationDataController.addData);
+router.patch('/custom-locations/data', auth, CustomLocationDataController.updateData);
 
 //Custom charts
 router.get('/charts', auth, ChartController.getCharts);

@@ -124,7 +124,7 @@ const DataSchema = new mongoose.Schema({
 DataSchema.index({
   location_code: 1,
   date: 1,
-});
+}, { unique: true });
 
 export const Data = mongoose.model<IData>("Data", DataSchema);
 export const LatestData = mongoose.model<IData>("LatestData", DataSchema);
