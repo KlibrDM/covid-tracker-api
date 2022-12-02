@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import CustomLocation, { ICustomLocation } from '../models/customLocation';
+import { CustomLocationData } from '../models/data';
 import { accessAllowed } from '../utils/checkRole';
 
 const getAllCustomLocations = async (req: Request, res: Response, next: NextFunction) => {
@@ -61,7 +62,10 @@ const deleteCustomLocation = async (req: Request, res: Response, next: NextFunct
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
       const result = await CustomLocation.findOne({ code: req.params.code });
       if(result && result.ownerId === (req.headers["authData"] as any).id){
+        //Delete location
         await CustomLocation.deleteOne({ code: req.params.code });
+        //Delete all associated data
+        await CustomLocationData.deleteMany({ location_code: req.params.code });
         return res.status(200).json({ message: "Location deleted" });
       }
       else{
