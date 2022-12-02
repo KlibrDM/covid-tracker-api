@@ -26,4 +26,14 @@ const updateData = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default { addData, updateData };
+const deleteDataSelection = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const data = await CustomLocationData.deleteMany({ location_code: req.body.location_code, date: { $in: req.body.dates } });
+    return res.status(200).json(data);
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+export default { addData, updateData, deleteDataSelection };
