@@ -187,6 +187,9 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
     let latest_total_deaths: number;
     let latest_total_tests: number;
     let latest_total_vaccinations: number;
+    let latest_total_boosters: number;
+    let latest_icu_patients: number;
+    let latest_hosp_patients: number;
     let calculated_new_cases: number;
     let calculated_new_deaths: number;
     let calculated_new_tests: number;
@@ -201,6 +204,9 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
         latest_total_deaths = 0;
         latest_total_tests = 0;
         latest_total_vaccinations = 0;
+        latest_total_boosters = 0;
+        latest_icu_patients = 0;
+        latest_hosp_patients = 0;
         isReset = true;
       }
 
@@ -208,6 +214,9 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
       latest_total_deaths = e.total_deaths ? +e.total_deaths : latest_total_deaths;
       latest_total_tests = e.total_tests ? +e.total_tests : latest_total_tests;
       latest_total_vaccinations = e.total_vaccinations ? +e.total_vaccinations : latest_total_vaccinations;
+      latest_total_boosters = e.total_boosters ? +e.total_boosters : latest_total_boosters;
+      latest_icu_patients = e.icu_patients ? +e.icu_patients : latest_icu_patients;
+      latest_hosp_patients = e.hosp_patients ? +e.hosp_patients : latest_hosp_patients;
 
       calculated_new_cases = e.new_cases ? +e.new_cases : !isReset ? latest_total_cases - (payload[payload.length - 1]?.total_cases || 0) : 0;
       calculated_new_deaths = e.new_deaths ? +e.new_deaths : !isReset ? latest_total_deaths - (payload[payload.length - 1]?.total_deaths || 0) : 0;
@@ -222,8 +231,8 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
         total_deaths: latest_total_deaths || undefined,
         new_deaths: calculated_new_deaths || undefined,
         reproduction_rate: +e.reproduction_rate || undefined,
-        icu_patients: +e.icu_patients || undefined,
-        hosp_patients: +e.hosp_patients || undefined,
+        icu_patients: latest_icu_patients || undefined,
+        hosp_patients: latest_hosp_patients || undefined,
         weekly_icu_admissions: +e.weekly_icu_admissions || undefined,
         weekly_hosp_admissions: +e.weekly_hosp_admissions || undefined,
         total_tests: latest_total_tests || undefined,
@@ -233,7 +242,7 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
         total_vaccinations: latest_total_vaccinations || undefined,
         people_vaccinated: +e.people_vaccinated || undefined,
         people_fully_vaccinated: +e.people_fully_vaccinated || undefined,
-        total_boosters: +e.total_boosters || undefined,
+        total_boosters: latest_total_boosters || undefined,
         new_vaccinations: calculated_new_vaccinations || undefined,
         stringency_index: +e.stringency_index || undefined,
         excess_mortality: +e.excess_mortality || undefined,

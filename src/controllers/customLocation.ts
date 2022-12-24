@@ -105,6 +105,7 @@ const updateCustomLocation = async (req: Request, res: Response, next: NextFunct
 const addCustomLocation = async (req: Request, res: Response, next: NextFunction) => {
   try{
     const location = new CustomLocation(req.body as ICustomLocation);
+    location.code = location.code.toUpperCase();
     
     if(await CustomLocation.findOne({ code: location.code })){
       return res.status(409).json({ message: "Location code already exists" });
