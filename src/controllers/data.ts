@@ -187,6 +187,7 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
     let latest_total_deaths: number;
     let latest_total_tests: number;
     let latest_total_vaccinations: number;
+    let latest_people_fully_vaccinated: number;
     let latest_total_boosters: number;
     let latest_icu_patients: number;
     let latest_hosp_patients: number;
@@ -204,6 +205,7 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
         latest_total_deaths = 0;
         latest_total_tests = 0;
         latest_total_vaccinations = 0;
+        latest_people_fully_vaccinated = 0;
         latest_total_boosters = 0;
         latest_icu_patients = 0;
         latest_hosp_patients = 0;
@@ -214,14 +216,43 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
       latest_total_deaths = e.total_deaths ? +e.total_deaths : latest_total_deaths;
       latest_total_tests = e.total_tests ? +e.total_tests : latest_total_tests;
       latest_total_vaccinations = e.total_vaccinations ? +e.total_vaccinations : latest_total_vaccinations;
+      latest_people_fully_vaccinated = e.people_fully_vaccinated ? +e.people_fully_vaccinated : latest_people_fully_vaccinated;
       latest_total_boosters = e.total_boosters ? +e.total_boosters : latest_total_boosters;
       latest_icu_patients = e.icu_patients ? +e.icu_patients : latest_icu_patients;
       latest_hosp_patients = e.hosp_patients ? +e.hosp_patients : latest_hosp_patients;
 
-      calculated_new_cases = e.new_cases ? +e.new_cases : !isReset ? latest_total_cases - (payload[payload.length - 1]?.total_cases || 0) : 0;
-      calculated_new_deaths = e.new_deaths ? +e.new_deaths : !isReset ? latest_total_deaths - (payload[payload.length - 1]?.total_deaths || 0) : 0;
-      calculated_new_tests = e.new_tests ? +e.new_tests : !isReset ? latest_total_tests - (payload[payload.length - 1]?.total_tests || 0) : 0;
-      calculated_new_vaccinations = e.new_vaccinations ? +e.new_vaccinations : !isReset ? latest_total_vaccinations - (payload[payload.length - 1]?.total_vaccinations || 0) : 0;
+      calculated_new_cases =
+        e.new_cases
+        ? +e.new_cases
+        : !isReset
+          ? latest_total_cases - (payload[payload.length - 1]?.total_cases || 0) > 0
+            ? latest_total_cases - (payload[payload.length - 1]?.total_cases || 0)
+            : 0
+          : 0;
+      calculated_new_deaths =
+        e.new_deaths
+        ? +e.new_deaths
+        : !isReset
+          ? latest_total_deaths - (payload[payload.length - 1]?.total_deaths || 0) > 0
+            ? latest_total_deaths - (payload[payload.length - 1]?.total_deaths || 0)
+            : 0
+          : 0;
+      calculated_new_tests =
+        e.new_tests
+        ? +e.new_tests
+        : !isReset
+          ? latest_total_tests - (payload[payload.length - 1]?.total_tests || 0) > 0
+            ? latest_total_tests - (payload[payload.length - 1]?.total_tests || 0)
+            : 0
+          : 0;
+      calculated_new_vaccinations =
+        e.new_vaccinations
+        ? +e.new_vaccinations
+        : !isReset
+          ? latest_total_vaccinations - (payload[payload.length - 1]?.total_vaccinations || 0) > 0
+            ? latest_total_vaccinations - (payload[payload.length - 1]?.total_vaccinations || 0)
+            : 0
+          : 0;
 
       payload.push({
         location_code: e.iso_code,
@@ -241,7 +272,7 @@ const loadAllData = async (req: Request, res: Response, next: NextFunction) => {
         test_units: e.tests_units || undefined,
         total_vaccinations: latest_total_vaccinations || undefined,
         people_vaccinated: +e.people_vaccinated || undefined,
-        people_fully_vaccinated: +e.people_fully_vaccinated || undefined,
+        people_fully_vaccinated: latest_people_fully_vaccinated || undefined,
         total_boosters: latest_total_boosters || undefined,
         new_vaccinations: calculated_new_vaccinations || undefined,
         stringency_index: +e.stringency_index || undefined,
