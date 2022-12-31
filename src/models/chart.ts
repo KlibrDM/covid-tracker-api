@@ -23,6 +23,7 @@ export interface IIndicator {
 export interface IChartValue {
   indicator: IIndicator;
   location_code: string;
+  is_custom_location?: boolean;
   chart_type: "area" | "line" | "bar";
   color: string;
   fill?: IChartAreaFill;
@@ -82,6 +83,10 @@ const ChartSchema = new mongoose.Schema({
       location_code: {
         type: String,
         required: true,
+      },
+      is_custom_location: {
+        type: Boolean,
+        required: false,
       },
       chart_type: {
         type: String,
