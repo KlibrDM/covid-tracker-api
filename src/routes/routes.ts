@@ -47,7 +47,14 @@ router.put('/charts/:id', auth, ChartController.updateChart);
 router.post('/charts', auth, ChartController.addChart);
 
 //Simulation
-router.post('/simulation', auth, SimulationController.runSimulation);
+router.get('/simulation', auth, SimulationController.getSimulations);
+router.get('/simulation/get-public', SimulationController.getPublicSimulations);
+router.get('/simulation/get-all', auth, SimulationController.getAllSimulations);
+router.get('/simulation/:id', auth, SimulationController.getSimulation);
+router.delete('/simulation/:id', auth, SimulationController.deleteSimulation);
+router.put('/simulation/:id', auth, SimulationController.updateSimulation);
+router.post('/simulation', SimulationController.runSimulation);
+router.post('/simulation/save', auth, SimulationController.saveSimulation);
 
 //User
 router.post('/user/register', UserController.register);

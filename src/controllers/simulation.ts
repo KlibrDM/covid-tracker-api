@@ -1,9 +1,117 @@
 import { Request, Response, NextFunction } from 'express';
 import { Data, IData } from '../models/data';
-import { ISimulation, ISimulationQuery, SimulationParameters } from '../models/simulation';
+import Simulation, { ISimulation, ISimulationQuery, SimulationParameters } from '../models/simulation';
 import moment from 'moment';
 import { fourteenDayAverage } from '../utils/functions';
 import * as _ from 'lodash';
+import { accessAllowed } from '../utils/checkRole';
+
+const getAllSimulations = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    if(!(await accessAllowed(req.headers["authData"], 'admin'))){
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const result = await Simulation.find();
+    return res.status(200).json(result);
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const getPublicSimulations = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const result = await Simulation.find({ is_public: true });
+    return res.status(200).json(result);
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const getSimulations = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    if(req.headers["authData"] && (req.headers["authData"] as any).id){
+      const result = await Simulation.find({ ownerId: (req.headers["authData"] as any).id });
+      return res.status(200).json(result);
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const getSimulation = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const result = await Simulation.findById(req.params.id);
+    if(result && (result.ownerId === (req.headers["authData"] as any).id || result.is_public)){
+      return res.status(200).json(result);
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const deleteSimulation = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    if(req.headers["authData"] && (req.headers["authData"] as any).id){
+      const result = await Simulation.findById(req.params.id);
+      if(result && result.ownerId === (req.headers["authData"] as any).id){
+        await Simulation.deleteOne({ _id: req.params.id });
+        return res.status(200).json({ message: "Simulation deleted" });
+      }
+      else{
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const updateSimulation = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    if(req.headers["authData"] && (req.headers["authData"] as any).id){
+      const result = await Simulation.findById(req.params.id);
+      if(result && result.ownerId === (req.headers["authData"] as any).id){
+        const response = await Simulation.updateOne({ _id: req.params.id }, req.body);
+        return res.status(200).json(response);
+      }
+      else{
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
+const saveSimulation = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const sim = new Simulation(req.body as ISimulation);
+    const result = await Simulation.create(sim);
+    return res.status(200).json(result);
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
 
 const runSimulation = async (req: Request, res: Response, next: NextFunction) => {
   try{
@@ -130,4 +238,4 @@ const calculateData = (type: 'total_cases' | 'total_deaths', parameters: Simulat
   return simNextTotals;
 }
 
-export default { runSimulation };
+export default { getAllSimulations, getPublicSimulations, getSimulations, getSimulation, deleteSimulation, updateSimulation, saveSimulation, runSimulation };
