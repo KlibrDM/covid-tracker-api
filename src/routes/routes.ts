@@ -6,6 +6,7 @@ import ChartController from '../controllers/chart';
 import CustomLocationController from '../controllers/customLocation';
 import CustomLocationDataController from '../controllers/customLocationData';
 import SimulationController from '../controllers/simulation';
+import ReportController from '../controllers/report';
 import auth from "../middleware/auth";
 
 const router = express.Router();
@@ -45,6 +46,15 @@ router.get('/charts/:id', auth, ChartController.getChart);
 router.delete('/charts/:id', auth, ChartController.deleteChart);
 router.put('/charts/:id', auth, ChartController.updateChart);
 router.post('/charts', auth, ChartController.addChart);
+
+//Reports
+router.get('/reports', auth, ReportController.getReports);
+router.get('/reports/get-public', ReportController.getPublicReports);
+router.get('/reports/get-all', auth, ReportController.getAllReports);
+router.get('/reports/:id', auth, ReportController.getReport);
+router.delete('/reports/:id', auth, ReportController.deleteReport);
+router.put('/reports/:id', auth, ReportController.updateReport);
+router.post('/reports', auth, ReportController.addReport);
 
 //Simulation
 router.get('/simulation', auth, SimulationController.getSimulations);
