@@ -18,7 +18,15 @@ const getAllCharts = async (req: Request, res: Response, next: NextFunction) => 
 
 const getPublicCharts = async (req: Request, res: Response, next: NextFunction) => {
   try{
-    const result = await Chart.find({ is_public: true });
+    const limit = parseInt(req.query.limit as string) || 0;
+    const result = await Chart.find(
+      { is_public: true },
+      null,
+      {
+        limit: limit,
+        sort: { createdAt: -1 }
+      }
+    );
     return res.status(200).json(result);
   }
   catch(err){
@@ -29,7 +37,15 @@ const getPublicCharts = async (req: Request, res: Response, next: NextFunction) 
 const getCharts = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
-      const result = await Chart.find({ ownerId: (req.headers["authData"] as any).id });
+      const limit = parseInt(req.query.limit as string) || 0;
+      const result = await Chart.find(
+        { ownerId: (req.headers["authData"] as any).id },
+        null,
+        {
+          limit: limit,
+          sort: { createdAt: -1 }
+        }
+      );
       return res.status(200).json(result);
     }
     else{

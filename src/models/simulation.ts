@@ -32,7 +32,7 @@ export interface ISimulation {
   new_deaths: number[];
 }
 
-const DataSchema = new mongoose.Schema({
+const SimulationSchema = new mongoose.Schema({
   ownerId: {
     type: String,
     required: true,
@@ -85,5 +85,7 @@ const DataSchema = new mongoose.Schema({
   },
 });
 
-const Simulation = mongoose.model<ISimulation>("Simulation", DataSchema);
+SimulationSchema.set('timestamps', true);
+
+const Simulation = mongoose.model<ISimulation>("Simulation", SimulationSchema);
 export default Simulation;

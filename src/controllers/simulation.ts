@@ -22,7 +22,15 @@ const getAllSimulations = async (req: Request, res: Response, next: NextFunction
 
 const getPublicSimulations = async (req: Request, res: Response, next: NextFunction) => {
   try{
-    const result = await Simulation.find({ is_public: true });
+    const limit = parseInt(req.query.limit as string) || 0;
+    const result = await Simulation.find(
+      { is_public: true },
+      null,
+      {
+        limit: limit,
+        sort: { createdAt: -1 }
+      }
+    );
     return res.status(200).json(result);
   }
   catch(err){
@@ -33,7 +41,15 @@ const getPublicSimulations = async (req: Request, res: Response, next: NextFunct
 const getSimulations = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
-      const result = await Simulation.find({ ownerId: (req.headers["authData"] as any).id });
+      const limit = parseInt(req.query.limit as string) || 0;
+      const result = await Simulation.find(
+        { ownerId: (req.headers["authData"] as any).id },
+        null,
+        {
+          limit: limit,
+          sort: { createdAt: -1 }
+        }
+      );
       return res.status(200).json(result);
     }
     else{

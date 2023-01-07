@@ -18,8 +18,16 @@ const getAllCustomLocations = async (req: Request, res: Response, next: NextFunc
 };
 
 const getPublicCustomLocations = async (req: Request, res: Response, next: NextFunction) => {
-  try{   
-    const result = await CustomLocation.find({ is_public: true });
+  try{
+    const limit = parseInt(req.query.limit as string) || 0;
+    const result = await CustomLocation.find(
+      { is_public: true },
+      null,
+      {
+        limit: limit,
+        sort: { createdAt: -1 }
+      }
+    );
     return res.status(200).json(result);
   }
   catch(err){
@@ -30,7 +38,15 @@ const getPublicCustomLocations = async (req: Request, res: Response, next: NextF
 const getCustomLocations = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
-      const result = await CustomLocation.find({ ownerId: (req.headers["authData"] as any).id });
+      const limit = parseInt(req.query.limit as string) || 0;
+      const result = await CustomLocation.find(
+        { ownerId: (req.headers["authData"] as any).id },
+        null,
+        {
+          limit: limit,
+          sort: { createdAt: -1 }
+        }
+      );
       return res.status(200).json(result);
     }
     else{

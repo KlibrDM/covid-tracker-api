@@ -119,5 +119,7 @@ const ChartSchema = new mongoose.Schema({
   },
 });
 
+ChartSchema.set('timestamps', true);
+
 const Chart = mongoose.model<IChart>("chart", ChartSchema);
 export default Chart;

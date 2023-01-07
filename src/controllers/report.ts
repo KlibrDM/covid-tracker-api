@@ -18,7 +18,15 @@ const getAllReports = async (req: Request, res: Response, next: NextFunction) =>
 
 const getPublicReports = async (req: Request, res: Response, next: NextFunction) => {
   try{
-    const result = await Report.find({ is_public: true });
+    const limit = parseInt(req.query.limit as string) || 0;
+    const result = await Report.find(
+      { is_public: true },
+      null,
+      {
+        limit: limit,
+        sort: { createdAt: -1 }
+      }
+    );
     return res.status(200).json(result);
   }
   catch(err){
@@ -29,7 +37,15 @@ const getPublicReports = async (req: Request, res: Response, next: NextFunction)
 const getReports = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
-      const result = await Report.find({ ownerId: (req.headers["authData"] as any).id });
+      const limit = parseInt(req.query.limit as string) || 0;
+      const result = await Report.find(
+        { ownerId: (req.headers["authData"] as any).id },
+        null,
+        {
+          limit: limit,
+          sort: { createdAt: -1 }
+        }
+      );
       return res.status(200).json(result);
     }
     else{

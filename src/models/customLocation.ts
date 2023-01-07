@@ -64,5 +64,7 @@ const CustomLocationSchema = new mongoose.Schema({
   },
 });
 
+CustomLocationSchema.set('timestamps', true);
+
 const CustomLocation = mongoose.model<ICustomLocation>("CustomLocation", CustomLocationSchema);
 export default CustomLocation;
