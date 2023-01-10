@@ -22,6 +22,7 @@ router.get('/custom-locations', auth, CustomLocationController.getCustomLocation
 router.get('/custom-locations/get-public', CustomLocationController.getPublicCustomLocations);
 router.get('/custom-locations/get-all', auth, CustomLocationController.getAllCustomLocations);
 router.get('/custom-locations/:code', auth, CustomLocationController.getCustomLocation);
+router.get('/custom-locations/get-by-id/:id', auth, CustomLocationController.getCustomLocationById);
 router.delete('/custom-locations/:code', auth, CustomLocationController.deleteCustomLocation);
 router.put('/custom-locations/:code', auth, CustomLocationController.updateCustomLocation);
 router.post('/custom-locations', auth, CustomLocationController.addCustomLocation);

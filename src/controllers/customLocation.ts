@@ -73,6 +73,21 @@ const getCustomLocation = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+const getCustomLocationById = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const result = await CustomLocation.findById(req.params.id);
+    if(result && (result.ownerId === (req.headers["authData"] as any).id || result.is_public)){
+      return res.status(200).json(result);
+    }
+    else{
+      return res.status(403).json({ message: "Forbidden" });
+    }
+  }
+  catch(err){
+    return res.status(500).json(err);
+  }
+};
+
 const deleteCustomLocation = async (req: Request, res: Response, next: NextFunction) => {
   try{
     if(req.headers["authData"] && (req.headers["authData"] as any).id){
@@ -135,4 +150,4 @@ const addCustomLocation = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export default { getAllCustomLocations, getPublicCustomLocations, getCustomLocations, getCustomLocation, deleteCustomLocation, updateCustomLocation, addCustomLocation };
+export default { getAllCustomLocations, getPublicCustomLocations, getCustomLocations, getCustomLocation, getCustomLocationById, deleteCustomLocation, updateCustomLocation, addCustomLocation };
