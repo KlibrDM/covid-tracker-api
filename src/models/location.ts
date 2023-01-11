@@ -18,6 +18,8 @@ export interface ILocation {
   median_age?: number;
   aged_65_older?: number;
   hospital_beds_per_thousand?: number;
+  gdp_per_capita?: number;
+  life_expectancy?: number;
 }
 
 const LocationSchema = new mongoose.Schema({
@@ -56,6 +58,14 @@ const LocationSchema = new mongoose.Schema({
     required: false,
   },
   hospital_beds_per_thousand: {
+    type: Number,
+    required: false,
+  },
+  gdp_per_capita: {
+    type: Number,
+    required: false,
+  },
+  life_expectancy: {
     type: Number,
     required: false,
   },

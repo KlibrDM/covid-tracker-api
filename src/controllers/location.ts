@@ -60,7 +60,9 @@ const loadLatestLocations = async (req: Request, res: Response, next: NextFuncti
       population_density: e.population_density || undefined,
       median_age: e.median_age || undefined,
       aged_65_older: e.aged_65_older || undefined,
-      hospital_beds_per_thousand: e.hospital_beds_per_thousand || undefined
+      hospital_beds_per_thousand: e.hospital_beds_per_thousand || undefined,
+      gdp_per_capita: e.gdp_per_capita || undefined,
+      life_expectancy: e.life_expectancy || undefined
     }));
 
     //Save to DB
