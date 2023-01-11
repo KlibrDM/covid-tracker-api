@@ -8,6 +8,7 @@ import CustomLocationDataController from '../controllers/customLocationData';
 import SimulationController from '../controllers/simulation';
 import ReportController from '../controllers/report';
 import auth from "../middleware/auth";
+import authNoReject from "../middleware/authNoReject";
 
 const router = express.Router();
 
@@ -21,8 +22,8 @@ router.get('/load-latest-locations', auth, LocationController.loadLatestLocation
 router.get('/custom-locations', auth, CustomLocationController.getCustomLocations);
 router.get('/custom-locations/get-public', CustomLocationController.getPublicCustomLocations);
 router.get('/custom-locations/get-all', auth, CustomLocationController.getAllCustomLocations);
-router.get('/custom-locations/:code', auth, CustomLocationController.getCustomLocation);
-router.get('/custom-locations/get-by-id/:id', auth, CustomLocationController.getCustomLocationById);
+router.get('/custom-locations/:code', authNoReject, CustomLocationController.getCustomLocation);
+router.get('/custom-locations/get-by-id/:id', authNoReject, CustomLocationController.getCustomLocationById);
 router.delete('/custom-locations/:code', auth, CustomLocationController.deleteCustomLocation);
 router.put('/custom-locations/:code', auth, CustomLocationController.updateCustomLocation);
 router.post('/custom-locations', auth, CustomLocationController.addCustomLocation);
@@ -43,7 +44,7 @@ router.post('/custom-locations/data-delete', auth, CustomLocationDataController.
 router.get('/charts', auth, ChartController.getCharts);
 router.get('/charts/get-public', ChartController.getPublicCharts);
 router.get('/charts/get-all', auth, ChartController.getAllCharts);
-router.get('/charts/:id', auth, ChartController.getChart);
+router.get('/charts/:id', authNoReject, ChartController.getChart);
 router.delete('/charts/:id', auth, ChartController.deleteChart);
 router.put('/charts/:id', auth, ChartController.updateChart);
 router.post('/charts', auth, ChartController.addChart);
@@ -52,7 +53,7 @@ router.post('/charts', auth, ChartController.addChart);
 router.get('/reports', auth, ReportController.getReports);
 router.get('/reports/get-public', ReportController.getPublicReports);
 router.get('/reports/get-all', auth, ReportController.getAllReports);
-router.get('/reports/:id', auth, ReportController.getReport);
+router.get('/reports/:id', authNoReject, ReportController.getReport);
 router.delete('/reports/:id', auth, ReportController.deleteReport);
 router.put('/reports/:id', auth, ReportController.updateReport);
 router.post('/reports', auth, ReportController.addReport);
@@ -61,7 +62,7 @@ router.post('/reports', auth, ReportController.addReport);
 router.get('/simulation', auth, SimulationController.getSimulations);
 router.get('/simulation/get-public', SimulationController.getPublicSimulations);
 router.get('/simulation/get-all', auth, SimulationController.getAllSimulations);
-router.get('/simulation/:id', auth, SimulationController.getSimulation);
+router.get('/simulation/:id', authNoReject, SimulationController.getSimulation);
 router.delete('/simulation/:id', auth, SimulationController.deleteSimulation);
 router.put('/simulation/:id', auth, SimulationController.updateSimulation);
 router.post('/simulation', SimulationController.runSimulation);
