@@ -2,6 +2,7 @@ import http from 'http';
 import express, { Express } from 'express';
 import routes from './routes/routes';
 import mongoose from 'mongoose';
+import "./utils/cron-jobs";
 
 require("dotenv").config();
 
