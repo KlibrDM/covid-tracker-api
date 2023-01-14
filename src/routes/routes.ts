@@ -36,6 +36,7 @@ router.get('/load-all-data', auth, DataController.loadAllData);
 
 //Custom locations data
 router.post('/custom-locations/data', auth, CustomLocationDataController.addData);
+router.post('/custom-locations/data/add-dataset', auth, CustomLocationDataController.addDataset);
 router.patch('/custom-locations/data', auth, CustomLocationDataController.updateData);
 //Using post instead of delete because the query string may exceed the maximum length
 router.post('/custom-locations/data-delete', auth, CustomLocationDataController.deleteDataSelection);

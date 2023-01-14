@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import csv from 'csvtojson';
-import moment from 'moment';
 import { CustomLocationData, Data, IData, LatestData } from '../models/data';
 import { accessAllowed } from '../utils/checkRole';
 
