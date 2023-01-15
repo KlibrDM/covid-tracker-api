@@ -5,6 +5,7 @@ import moment from 'moment';
 import { fourteenDayAverage } from '../utils/functions';
 import * as _ from 'lodash';
 import { accessAllowed } from '../utils/checkRole';
+import Location, { ILocation } from '../models/location';
 
 const getAllSimulations = async (req: Request, res: Response, next: NextFunction) => {
   try{
@@ -144,28 +145,42 @@ const runSimulation = async (req: Request, res: Response, next: NextFunction) =>
       new_cases: [],
       total_deaths: [],
       new_deaths: [],
+      icu_patients: [],
+      hosp_patients: [],
     }
 
     //Load parameters
     const parameters: SimulationParameters = {
       simStartDate: sim.start_date,
-      simDays: sim.simulation_parameters.find(e => e.key === 'simulation_days')?.value || 120
+      simDays: Number(sim.simulation_parameters.find(e => e.key === 'simulation_days')?.value) || 120,
+      usePopDensity: sim.simulation_parameters.find(e => e.key === 'use_population_density')?.value ? true : false,
+      useMedianAge: sim.simulation_parameters.find(e => e.key === 'use_median_age')?.value ? true : false,
+      usePercentOver65: sim.simulation_parameters.find(e => e.key === 'use_percent_over_65')?.value ? true : false,
+      useHospBeds1K: sim.simulation_parameters.find(e => e.key === 'use_hospital_beds_1k')?.value ? true : false,
+      useGDPPC: sim.simulation_parameters.find(e => e.key === 'use_gdp_per_capita')?.value ? true : false,
+      useLifeExpectancy: sim.simulation_parameters.find(e => e.key === 'use_life_expectancy')?.value ? true : false,
     }
+
+    //Load location data
+    const location = await Location.findOne({ location_code: sim.location_code });
 
     //Load data for sim location
     const sourceDataset = await Data.find({ location_code: sim.location_code });
+    sourceDataset.reverse();
 
     //Load data for sim datasets
     const simDatasets: IData[][] = [];
     for(let i = 0; i < sim.dataset_location_codes.length; i++){
       const dataset = await Data.find({ location_code: sim.dataset_location_codes[i] });
-      simDatasets.push(dataset);
+      simDatasets.push(dataset.reverse());
     }
 
     simResult.new_cases = simulateData('new_cases', parameters, sourceDataset, simDatasets);
-    simResult.total_cases = calculateData('total_cases', parameters, sourceDataset, simResult.new_cases);
-    simResult.new_deaths = simulateData('new_deaths', parameters, sourceDataset, simDatasets);
-    simResult.total_deaths = calculateData('total_deaths', parameters, sourceDataset, simResult.new_deaths);
+    simResult.total_cases = calculateTotal(sourceDataset[sourceDataset.length - 1]['total_cases'] || 0, simResult.new_cases);
+    simResult.new_deaths = calculateData('new_deaths', parameters, location, simResult.new_cases);
+    simResult.total_deaths = calculateTotal(sourceDataset[sourceDataset.length - 1]['total_deaths'] || 0, simResult.new_deaths);
+    simResult.icu_patients = calculateData('icu_patients', parameters, location, simResult.new_cases);
+    simResult.hosp_patients = calculateData('hosp_patients', parameters, location, simResult.new_cases);
 
     return res.status(200).json(simResult);
   }
@@ -242,8 +257,7 @@ const simulateData = (type: 'new_cases' | 'new_deaths', parameters: SimulationPa
   return simNextDays;
 }
 
-const calculateData = (type: 'total_cases' | 'total_deaths', parameters: SimulationParameters, source: IData[], newValues: number[]) => {
-  let latestValue = source[source.length - 1][type] || 0;
+const calculateTotal = (latestValue: number, newValues: number[]) => {
   const simNextTotals: number[] = [];
 
   newValues.forEach(num => {
@@ -252,6 +266,46 @@ const calculateData = (type: 'total_cases' | 'total_deaths', parameters: Simulat
   });
 
   return simNextTotals;
+}
+
+const calculateData = (
+  type: 'new_deaths' | 'icu_patients' | 'hosp_patients',
+  parameters: SimulationParameters,
+  location: ILocation | null,
+  newCases: number[]
+) => {
+  const cases = newCases;
+  const simData: number[] = [];
+
+  if (!location) {
+    return simData
+  }
+
+  if (type === 'new_deaths') {
+    let deathRate = 0.01;
+
+    cases.forEach(num => {
+      simData.push(Math.round(num * deathRate));
+    });
+  }
+
+  if (type === 'icu_patients') {
+    let icuRate = 0.03;
+
+    cases.forEach(num => {
+      simData.push(Math.round(num * icuRate));
+    });
+  }
+
+  if (type === 'hosp_patients') {
+    let hospRate = 0.3;
+
+    cases.forEach(num => {
+      simData.push(Math.round(num * hospRate));
+    });
+  }
+
+  return simData;
 }
 
 export default { getAllSimulations, getPublicSimulations, getSimulations, getSimulation, deleteSimulation, updateSimulation, saveSimulation, runSimulation };

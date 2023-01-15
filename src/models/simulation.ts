@@ -3,11 +3,17 @@ import mongoose from "mongoose";
 export type SimulationParameters = {
   simStartDate: Date;
   simDays: number;
+  usePopDensity: boolean;
+  useMedianAge: boolean;
+  usePercentOver65: boolean;
+  useHospBeds1K: boolean;
+  useGDPPC: boolean;
+  useLifeExpectancy: boolean;
 }
 
 export interface ISimulationParameter {
   key: string;
-  value: number;
+  value: number | boolean;
 }
 
 export interface ISimulationQuery {
@@ -30,6 +36,8 @@ export interface ISimulation {
   new_cases: number[];
   total_deaths: number[];
   new_deaths: number[];
+  icu_patients: number[];
+  hosp_patients: number[];
 }
 
 const SimulationSchema = new mongoose.Schema({
@@ -80,6 +88,14 @@ const SimulationSchema = new mongoose.Schema({
     required: false,
   },
   new_deaths: {
+    type: [Number],
+    required: false,
+  },
+  icu_patients: {
+    type: [Number],
+    required: false,
+  },
+  hosp_patients: {
     type: [Number],
     required: false,
   },
